@@ -18,14 +18,15 @@ class UDPpositionSever:
             udpIP=self.hostIP,
             portNUMsnd=self.port,
             portNUMrcv=26951,
-            enbaleTHR=False,
-            suppressWarns=False
+            validateConnection=True,
+            suppressWarns=True
         )
 
         positionVec = "[0, 1, 1]"
 
         while self.session_status:
             sock.SendPosition(positionVec)
+            sock.ValidateConnection()
 
         
         
