@@ -1,7 +1,7 @@
 from data.serverInfo import ServerInfo, InfoReader
 from utils.ServerCommons import ServerComms
 
-
+# "192.168.0.21"
 class UDPpositionSever:
     """Base class for UDP Position Server"""
 
@@ -18,15 +18,16 @@ class UDPpositionSever:
             udpIP=self.hostIP,
             portNUMsnd=self.port,
             portNUMrcv=26951,
-            validateConnection=True,
-            suppressWarns=True
+            enableTHR=True,
+            suppressWarns=True,
+            validateConnection=True
         )
 
         positionVec = "[0, 1, 1]"
 
         while self.session_status:
             sock.SendPosition(positionVec)
-            sock.ValidateConnection()
+            # sock.ValidateConnection()
 
         
         
