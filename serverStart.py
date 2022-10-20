@@ -27,7 +27,7 @@ class UDPpositionSever:
 
         while self.session_status:
             sock.SendPosition(positionVec)
-            # sock.ValidateConnection()
+            sock.ValidateConnection()
 
         
         
