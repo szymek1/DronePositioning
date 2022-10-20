@@ -12,7 +12,7 @@ class ServerComms:
     Unity client
     """
 
-    def __init__(self, udpIP, portNUMsnd, portNUMrcv, validateConnection=True, suppressWarns=False) -> None:
+    def __init__(self, udpIP, portNUMsnd, portNUMrcv, enableTHR=True, suppressWarns=False, validateConnection=True) -> None:
         """
         -udpIP: any IP to connect to
         -portNUMsnd: a port related to the IP above to send
@@ -24,7 +24,7 @@ class ServerComms:
         self.udpIP = udpIP
         self.udpSendPort = portNUMsnd
         self.udpRcvPort = portNUMrcv
-        self.validateConnection = validateConnection
+        self.enableTHR = enableTHR
         self.suppressWarns = suppressWarns
         self.validateConnection = validateConnection
 
@@ -38,7 +38,7 @@ class ServerComms:
         self.udpSock.bind((udpIP, portNUMrcv))
 
         # if validateConnection=True then create receiving thread
-        if validateConnection:
+        if enableTHR:
             self.rcvTHr = threading.Thread(target=self.RcvThreadFunc, daemon=True)
             self.rcvTHr.start()
 
@@ -58,7 +58,7 @@ class ServerComms:
     def ReceiveData(self) -> Tuple[str, tuple]:
         """Returns data if it came from the system"""
 
-        if not self.validateConnection:
+        if not self.enableTHR:
             raise ValueError("Receiving data not enabled!")
 
         data_from_system = None
@@ -96,21 +96,26 @@ class ServerComms:
     def ValidateConnection(self) -> None:
         """Validates connection to the system"""
 
-        data = None
-        connectedIP = None
-        validation_val = "1"
+        if self.validateConnection:
 
-        if self.isDataRcvd:
-            self.isDataRcvd = False
-            data = self.dataRCVD
-            self.dataRCVD = None
+            data = None
+            connectedIP = None
+            validation_val = "1"
 
-            connectedIP = self.systemIP
-            self.systemIP = None
+            if self.isDataRcvd:
+                self.isDataRcvd = False
+                data = self.dataRCVD
+                self.dataRCVD = None
+
+                connectedIP = self.systemIP
+                self.systemIP = None
+            
+            if data == validation_val:
+                print(f"[CONNECTION INFO] connected to: {connectedIP[0]}:{connectedIP[1]}")
+            '''
+            TODO:
+            - make server to shutdown after given time without the connection
+            '''
         
-        if data == validation_val:
-            print(f"[CONNECTION INFO] connected to: {connectedIP[0]}:{connectedIP[1]}")
         else:
-            pass
-            # print("Connection lost")
-      
+            raise ValueError("Connection validation not enabled!")
