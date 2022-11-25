@@ -1,31 +1,26 @@
 import socket
-import threading
-from typing import Tuple
+
+localIP     = "192.168.43.181"
+localPort   = 26950
+bufferSize  = 4096
+
+UDPServerSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
+
+# UDPServerSocket.bind((localIP, localPort))
+
+print("listening")
+response = bytes("1", encoding="utf-8")
 
 
-def sendMess(s: socket.socket, rcvrData: Tuple[str, int], sess: bool) -> None:
-	mess = bytes("1", "utf-8")
-	while sess:
-		s.sendto(mess, rcvrData)
 
-localIP = "172.24.160.16"
-localPort = 26950
+while(True):
 
-sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-sock.bind((localIP, localPort))
+    # bytesAddressPair = UDPServerSocket.recvfrom(bufferSize)
 
-session = True
+    # message = bytesAddressPair[0].decode('utf-8')
 
-sendTHRD = threading.Thread(target=sendMess, args=(sock, (localIP, 26951), session))
-sendTHRD.start()
+    # print(message)
+
+    UDPServerSocket.sendto(response, (localIP, 26951))
 
 
-try:
-	while session:
-		bap = sock.recvfrom(4096)
-		m = bap[0].decode("utf-8")
-		print(m)
-except KeyboardInterrupt:
-	session = False
-	sock.close()
-	sendTHRD.abort()
