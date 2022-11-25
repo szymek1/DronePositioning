@@ -1,4 +1,5 @@
 import struct
+import time
 from typing import List
 from math import degrees
 
@@ -19,10 +20,10 @@ class UDPpositionSever(Server):
 
         self._session_status = True
 
-        self.droneConnection = mavutil.mavlink_connection('com7', baud=57600)
-
-        self.droneConnection.mav.request_data_stream_send(self.droneConnection.target_system, 
-            self.droneConnection.target_component, mavutil.mavlink.MAV_DATA_STREAM_ALL, 1000, 1)
+        self.droneConnection = mavutil.mavlink_connection('com7', baud=57600, zero_time_base=True, retires=0)
+        self.Request_message_interval(mavutil.mavlink.MAVLINK_MSG_ID_ATTITUDE, 100)
+        # self.droneConnection.mav.request_data_stream_send(self.droneConnection.target_system, 
+        #     self.droneConnection.target_component, mavutil.mavlink.MAV_DATA_STREAM_ALL, 10, 1)
 
     def start(self) -> None:
         """Start server"""
@@ -31,38 +32,44 @@ class UDPpositionSever(Server):
             udpIP=self._hostIP,
             portNUMsnd=self._port,
             portNUMrcv=26951,
-            enableTHR=True,
+            enableTHR=False,
             suppressWarns=True,
-            validateConnection=True
+            validateConnection=False
         )
 
         while self._session_status:
             # print("Sending...")
             vector_of_angles = self.ReceiveTelemetry()
-            # print(vector_of_angles)
             self.SendTelemetryUDP(sock=sock, vector=vector_of_angles)
 
     def ReceiveTelemetry(self) -> bytes:
         """Receives telemetry from the drone"""
-        # TH = TelemetryHandler()
-        # return TH.reciveTelemetry(self._session_status)
-        while self._session_status:
-            attitude_data = self.droneConnection.recv_match(type="ATTITUDE" ,blocking=True).to_dict()
-            # angles = [
-            #     attitude_data['roll'],
-            #     attitude_data['pitch'],
-            #     attitude_data['yaw']
-            # ]
-            # print(attitude_data['roll'], attitude_data['pitch'], attitude_data['yaw'])
-            return struct.pack("fff", attitude_data['roll'], attitude_data['pitch'], attitude_data['yaw'])
 
-    def SendTelemetryUDP(self, sock: 'utils.ServerCommons.ServerComms', vector: str) -> None:
+        while self._session_status:
+            try:
+                attitude_data = self.droneConnection.recv_match(type="ATTITUDE" ,blocking=True).to_dict()
+                return struct.pack("fff", attitude_data['pitch'], attitude_data['roll'], attitude_data['yaw'])
+            except:
+                pass
+
+    def Request_message_interval(self, message_id: int, frequency_hz: float):
+            
+            self.droneConnection.mav.command_long_send(
+                self.droneConnection.target_system, self.droneConnection.target_component,
+                mavutil.mavlink.MAV_CMD_SET_MESSAGE_INTERVAL, 0,
+                message_id, 
+                1e6 / frequency_hz,
+                0, 0, 0, 0, 
+                0, 
+            )
+
+    def SendTelemetryUDP(self, sock: 'utils.ServerCommons.ServerComms', vector: bytes) -> None:
         """
         Sends a vector of positions in Unity coordinate system
         and other crucial data
         """
         sock.SendPosition(vector)
-        sock.ValidateConnection()
+        # sock.ValidateConnection()
 
     def closeConnection(self, sock: 'utils.ServerCommons.ServerComms') -> None:
         """Closes connection with client"""
@@ -70,8 +77,5 @@ class UDPpositionSever(Server):
         sock.CloseConnection(self)
 
         
-        
-
-
 s = UDPpositionSever()
 s.start()
