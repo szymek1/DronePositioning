@@ -1,8 +1,8 @@
+import sys
 import struct
-import time
 from typing import List
-from math import degrees
 
+from serial import SerialException
 from pymavlink import mavutil
 
 from Server import Server
@@ -16,11 +16,16 @@ class UDPpositionSever(Server):
 
     def __init__(self) -> None:
         self._hostIP = ServerInfo.localHostIP
+        self._remoteIP = ServerInfo.remoteIP
         self._port = ServerInfo.port
 
         self._session_status = True
 
-        self.droneConnection = mavutil.mavlink_connection('com7', baud=57600, zero_time_base=True, retires=0)
+        try:
+            self.droneConnection = mavutil.mavlink_connection('com7', baud=57600, zero_time_base=True, retires=0) # assuming usage of radio modem
+        except SerialException:
+            self.droneConnection = mavutil.mavlink_connection('/dev/ttyUSB0', baud=57600, zero_time_base=True, retires=0) # assuming usage of radio modem
+
         self.Request_message_interval(mavutil.mavlink.MAVLINK_MSG_ID_ATTITUDE, 100)
         # self.droneConnection.mav.request_data_stream_send(self.droneConnection.target_system, 
         #     self.droneConnection.target_component, mavutil.mavlink.MAV_DATA_STREAM_ALL, 10, 1)
@@ -38,7 +43,6 @@ class UDPpositionSever(Server):
         )
 
         while self._session_status:
-            # print("Sending...")
             vector_of_angles = self.ReceiveTelemetry()
             self.SendTelemetryUDP(sock=sock, vector=vector_of_angles)
 
@@ -68,7 +72,7 @@ class UDPpositionSever(Server):
         Sends a vector of positions in Unity coordinate system
         and other crucial data
         """
-        sock.SendPosition(vector)
+        sock.SendPosition(vector, self._remoteIP, self._port)
         # sock.ValidateConnection()
 
     def closeConnection(self, sock: 'utils.ServerCommons.ServerComms') -> None:
@@ -76,6 +80,7 @@ class UDPpositionSever(Server):
         print("Connection closing...")
         sock.CloseConnection(self)
 
-        
-s = UDPpositionSever()
-s.start()
+
+if __name__ == "__main__":
+    s = UDPpositionSever()
+    s.start()

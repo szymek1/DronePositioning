@@ -1,5 +1,6 @@
 {
-	"localHostIP": "127.0.0.1",
-	"port": 26950,
+	"localHostIP": "192.168.0.13",
+	"remoteIP": "192.168.0.14",
+	"port": 55555,
 	"dataBufferSize": 4096
 }

@@ -50,10 +50,10 @@ class ServerComms:
         """Functionality to delete socket"""
         self.udpSock.close()
 
-    def  SendPosition(self, data: str) -> None:
+    def  SendPosition(self, data: bytes, remoteIP: str, remotePort: int) -> None:
         """Sends encoded position vector"""
-        self.udpSock.sendto(bytes(data, "utf-8"), 
-                           (self.udpIP, self.udpSendPort))
+
+        self.udpSock.sendto(data, (remoteIP, remotePort))
 
     def ReceiveData(self) -> Tuple[str, tuple]:
         """Returns data if it came from the system"""
