@@ -70,3 +70,4 @@ The system was tested on the following scenarios:
 1. The algorithm for calculating distance based on GPS coorindates is not very accurate and there are still unresolved problems with it displaying correct position. To test only angular position comment out line 77 and 80 from ```serverStart.py``` so server sends only angular positions.
 2. Different machines assign radio modem to different ports, if any problems occur with connection try using MissonPlanner to check which port is used. Lines from 29 to 33 in ```serverStart.py``` should check whether the server machine is Linux or Windows.
 3. It is unresolved why when Unity app runs on HL2 the scene is not fixed in place but moves with a user head.
+4. When running UnityCLient on Windows machine in Unity Editor it might be required to disable all firewalls and network protection rules.
