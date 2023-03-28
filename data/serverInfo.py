@@ -27,5 +27,6 @@ class ServerInfo:
 	
 	# Connection Information
 	localHostIP: str = connection_data["localHostIP"]
+	remoteIP: str = connection_data["remoteIP"]
 	port: int = connection_data["port"]
 	dataBufferSize: int = connection_data["dataBufferSize"]

@@ -1,7 +1,6 @@
 import socket
 import threading
 from typing import Tuple
-# from builtins import WindowsError
 
 from data.serverInfo import ServerInfo
 
@@ -50,10 +49,10 @@ class ServerComms:
         """Functionality to delete socket"""
         self.udpSock.close()
 
-    def  SendPosition(self, data: str) -> None:
+    def  SendPosition(self, data: bytes, remoteIP: str, remotePort: int) -> None:
         """Sends encoded position vector"""
-        self.udpSock.sendto(bytes(data, "utf-8"), 
-                           (self.udpIP, self.udpSendPort))
+
+        self.udpSock.sendto(data, (remoteIP, remotePort))
 
     def ReceiveData(self) -> Tuple[str, tuple]:
         """Returns data if it came from the system"""
@@ -70,15 +69,6 @@ class ServerComms:
         except Exception as err:
             if not self.suppressWarns:
                 print("Connect to the system!")
-            '''
-            if err.winerror == 10054:
-                if not self.suppressWarns:
-                    print("Connect to the system!")
-                else:
-                    pass
-            else:
-                raise ValueError("Cannot convert data to string")
-            '''
 
         return data_from_system, systemIP
 
