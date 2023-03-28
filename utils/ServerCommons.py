@@ -1,7 +1,6 @@
 import socket
 import threading
 from typing import Tuple
-# from builtins import WindowsError
 
 from data.serverInfo import ServerInfo
 
@@ -70,15 +69,6 @@ class ServerComms:
         except Exception as err:
             if not self.suppressWarns:
                 print("Connect to the system!")
-            '''
-            if err.winerror == 10054:
-                if not self.suppressWarns:
-                    print("Connect to the system!")
-                else:
-                    pass
-            else:
-                raise ValueError("Cannot convert data to string")
-            '''
 
         return data_from_system, systemIP
 

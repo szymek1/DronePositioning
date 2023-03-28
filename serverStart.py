@@ -28,13 +28,11 @@ class UDPpositionSever(Server):
 
         try:
             self.droneConnection = mavutil.mavlink_connection('com7', baud=57600, zero_time_base=True, retires=0) # com port of radio modem on Windows
+            # can generate error if radio modem gets assigned to different port com, try then checking with MissionPlanner which port com wwas choosen
         except SerialException:
             self.droneConnection = mavutil.mavlink_connection('/dev/ttyUSB0', baud=57600, zero_time_base=True, retires=0) # com port of radio modem on Linux
 
         self.Request_message_interval(mavutil.mavlink.MAVLINK_MSG_ID_ATTITUDE, 100)
-        # self.droneConnection.mav.request_data_stream_send(self.droneConnection.target_system, 
-        #     self.droneConnection.target_component, mavutil.mavlink.MAV_DATA_STREAM_ALL, 10, 1)
-        print(self._homeLat, self._homeLong, self._homeAlt)
 
     def calculateDistance(self ,lat: float, lng: float, alt: float) -> List[float]:
         """
@@ -77,20 +75,12 @@ class UDPpositionSever(Server):
                 angular_data = self.droneConnection.recv_match(type="ATTITUDE" ,blocking=True).to_dict()
                 position_data = self.droneConnection.recv_match(type='GLOBAL_POSITION_INT', blocking=True).to_dict()
                 position_data = self.calculateDistance(position_data['latitude'], position_data['longtitude'], position_data['relative_altitude'])
-                print(position_data)
+                
                 return struct.pack("fff", angular_data['pitch'], angular_data['roll'], angular_data['yaw'])
                 # return struct.pack("ffffff", angular_data['pitch'], angular_data['roll'], angular_data['yaw'], position_data[0], position_data[1], position_data[2])
             except:
+                # if a request cannot be completed try once again
                 pass
-        '''
-        while self._session_status:
-            try:
-                vector_list = [0, 0, 0, random.random(), random.random(), random.random()]
-                print(vector_list)
-                return struct.pack("ffffff", vector_list[0], vector_list[1], vector_list[2], vector_list[3], vector_list[4], vector_list[5])
-            except:
-                pass
-        '''
 
     def Request_message_interval(self, message_id: int, frequency_hz: float) -> None:
             
