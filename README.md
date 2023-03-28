@@ -71,3 +71,4 @@ The system was tested on the following scenarios:
 2. Different machines assign radio modem to different ports, if any problems occur with connection try using MissonPlanner to check which port is used. Lines from 29 to 33 in ```serverStart.py``` should check whether the server machine is Linux or Windows.
 3. It is unresolved why when Unity app runs on HL2 the scene is not fixed in place but moves with a user head.
 4. When running UnityCLient on Windows machine in Unity Editor it might be required to disable all firewalls and network protection rules.
+5. In case the Unity project doesn't run (cannot be loaded) make new project and replace directories: ```/Assets``` , ```/ProjectSettings``` , ```/UserSettings``` to get settings for correct build.
