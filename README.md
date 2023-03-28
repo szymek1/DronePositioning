@@ -25,7 +25,7 @@ In the directory ```/UnityCLient``` there is a Unity project which after compila
 
 Try sticking to the version of Unity Engine mentioned above as some bugs of versions older than this one made the project not working properly.
 ## How to start
-### Position Client
+### PositionServer
 The main file is ```serverStart.py``` to launch the server use:
 
 ```python3 serverStart.py --latitude [float] --longtitude [float] --altitude [float]```
